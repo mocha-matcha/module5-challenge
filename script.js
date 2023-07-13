@@ -2,6 +2,7 @@
 // the code isn't run until the browser has finished rendering all the elements
 // in the html.
 var today = dayjs();
+var todayText = dayjs().format('MM/DD/YYYY');
 var root = $('.container-fluid');
 
 function getHourText(hour)
@@ -101,6 +102,29 @@ function populateUi()
 
 }
 
+
+function checkSave()
+{
+$('.time-block').each(function(hour){
+let day = todayText;
+let element = $(this);
+let keyName = `${day}${element.attr('id')}`;
+console.log(keyName);
+
+let obj = JSON.parse(localStorage.getItem(keyName));
+console.log(obj);
+if(obj != null)
+	{
+
+		console.log('text found');
+
+				let description = $(this).find('.description');
+		description.val(obj.description);
+	}
+});
+
+}
+
 $(function () {
   // TODO: Add a listener for click events on the save button. This code should
   // use the id in the containing time-block as a key to save the user input in
@@ -124,16 +148,44 @@ $(function () {
   //
   // TODO: Add code to display the current date in the header of the page.
 	console.log('start');
+
+
+
 	$('#currentDay').text(today.format('DD/MM/YYYY'));
 	populateUi();
-
+	// make sure checking localStorage is called AFTER the ui is populated.
+	checkSave();
 	$('.btn').on('click',function(event)
 		{
-		let pe = $(`${event.target.parentElement['innerHTML']}`);
+			let parent = $(this).parent();
+			let day = todayText;
+			let description = parent.find('.description').val();
+			let hour = `${parent.attr('id')}`;
+			console.log(hour);
+			console.log($(this).parent().find('.description').val());
+			
+			let keyName = `${day}${hour}`;
+			console.log(keyName);
+			let obj = {"day":day,"hour":`${hour}`, "description":description};
+			console.log(obj);
+			localStorage.setItem(keyName,JSON.stringify(obj));
+			console.log(localStorage.getItem(keyName));
+			
+			
 
-			let selectedHour = pe.attr('id');
-		console.log(selectedHour);
-	console.log(pe);	
+		// below saves ALL of the time blocks. not efficent and may cause issues if user changes value while saving another and wants to go back.
+		/*	$(".time-block").each(function(hour){
+				console.log('hour: ' + hour + " text: " + $(this).text() +$(this).find('.description').val() );
+				let description = $(this).find('.description').val();
+				let day = todayText;
+				let obj = {'day':day,'hour':hour, 'description':description};
+
+				console.log(obj);
+				let keyName = `${day} + ${getHourText(hour)}`;
+				localStorage.setItem(keyName,JSON.stringify(obj));
+
+
+			}); */
 		
 		});
 });
